@@ -1,0 +1,16 @@
+A Kubernetes (K8s) cluster is a set of nodes (physical or virtual machines) that run containerized applications and are managed by the Kubernetes control plane. 
+The control plane is responsible for managing the state of the cluster and ensuring that the desired state of the applications is maintained.
+
+A Kubernetes cluster typically consists of the following components:
+
+Master node(s): This is the control plane component that manages the overall state of the cluster. 
+It includes components such as the API server, etcd, and the controller manager.
+
+Worker node(s): These are the nodes where the containerized applications are run.
+Each worker node runs a Kubernetes agent called the kubelet, as well as a container runtime such as Docker or CRI-O.
+
+Networking: A network overlay is used to enable communication between the different components of the cluster, including the pods running the containerized applications.
+
+Add-ons: Additional components such as a container registry, a monitoring solution, and a logging solution can be added to the cluster as needed.
+
+Kubernetes clusters can be deployed on a variety of infrastructure providers, including public cloud providers such as Amazon Web Services (AWS), Google Cloud Platform (GCP), and Microsoft Azure, as well as on-premise data centers.
