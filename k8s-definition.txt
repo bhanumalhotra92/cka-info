@@ -1,0 +1,8 @@
+Kubernetes (often abbreviated as "K8s") is an open-source container orchestration platform developed by Google.
+It is designed to automate the deployment, scaling, and management of containerized applications.
+
+Kubernetes provides a way to manage containerized applications at scale by abstracting away the underlying infrastructure and providing a consistent API for managing application resources such as pods, services, and deployments. 
+This makes it easier to deploy and manage applications across different environments, such as on-premise data centers, public clouds, or hybrid environments.
+
+Kubernetes is a powerful tool for container orchestration, and is widely used in production environments by organizations of all sizes. 
+It is also highly extensible, with a rich ecosystem of plugins and extensions that allow it to integrate with other tools and services.
