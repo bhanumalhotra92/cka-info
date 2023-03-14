@@ -1,0 +1,33 @@
+The Kubernetes (K8s) architecture is designed to be highly modular and extensible.
+It consists of several components that work together to manage the state of the cluster and ensure that applications are deployed and run consistently across the cluster. Here's a detailed look at the K8s architecture:
+
+Control Plane: The control plane is the set of components that manage the overall state of the cluster. It consists of several components:
+API server: This component exposes the Kubernetes API, which is used by other components to interact with the cluster.
+
+etcd: This is a distributed key-value store that stores the configuration data for the cluster, including the state of all resources.
+
+Scheduler: This component is responsible for scheduling pods to run on nodes in the cluster.
+
+Controller Manager: This component manages the different controllers that are responsible for ensuring that the desired state of the cluster is maintained.
+
+
+Nodes: Nodes are the worker machines that run containerized applications. Each node runs several components:
+Kubelet: This is the primary agent that runs on each node and is responsible for managing the state of the node and ensuring that pods are running correctly.
+
+Container Runtime: This is the software that runs the containers on the node, such as Docker or CRI-O.
+
+Kube-proxy: This component is responsible for managing network traffic to and from the pods running on the node.
+
+Pods: Pods are the smallest deployable units in Kubernetes. A pod is a logical host for one or more containers, and each pod runs on a single node.
+Pods can share network and storage resources, making it easier to manage complex applications.
+
+Services: Services provide a way to expose pods to the network. 
+A service can load balance traffic across multiple pods and provide a stable IP address and DNS name that can be used to access the pods.
+
+Volume: Volumes provide a way to store and share data between containers running in the same pod.
+Kubernetes supports a variety of volume types, including local storage, network storage, and cloud storage.
+
+ConfigMaps and Secrets: ConfigMaps and Secrets provide a way to store configuration data and sensitive information,
+such as passwords and API keys, separately from the application code.
+
+Overall, the K8s architecture is designed to be highly modular and flexible, allowing it to be customized to meet the needs of a wide range of use cases
