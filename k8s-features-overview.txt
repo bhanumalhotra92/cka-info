@@ -1,0 +1,27 @@
+Kubernetes (K8s) offers a range of features that make it a powerful tool for deploying, scaling, and managing containerized applications.
+Here are some of the key features of Kubernetes:
+
+Container orchestration: Kubernetes automates the deployment, scaling, and management of containerized applications,
+making it easier to manage large numbers of containers across different environments.
+
+Service discovery and load balancing: Kubernetes provides built-in mechanisms for service discovery
+(Microservices service discovery is a way for applications and microservices to locate each other on a network.)
+and load balancing, making it easy to distribute traffic across multiple instances of a service.
+
+Self-healing: Kubernetes can automatically detect and replace failed containers or nodes, 
+ensuring that applications remain available even in the event of failures.
+
+Horizontal scaling: Kubernetes supports horizontal scaling of applications by adding or removing instances based on demand, 
+allowing applications to automatically scale up or down as needed.
+
+Rolling updates and rollbacks: Kubernetes supports rolling updates and rollbacks of application versions, 
+allowing updates to be applied gradually to minimize disruption to users.
+
+Resource management: Kubernetes provides tools for managing resource utilization, including CPU and memory limits,
+ensuring that applications don't consume too many resources and impact other applications running on the same cluster.
+
+Config management: Kubernetes supports declarative configuration management, 
+allowing configuration changes to be applied automatically and consistently across multiple instances of an application.
+
+Extensibility: Kubernetes is highly extensible, with a rich ecosystem of plugins and extensions that allow it to integrate with other tools and services. 
+This makes it easy to customize Kubernetes to meet the needs of specific use cases.
