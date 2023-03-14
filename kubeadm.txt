@@ -1,0 +1,51 @@
+Kubeadm is a tool for bootstrapping a Kubernetes (K8s) cluster. 
+It provides a simple and fast way to set up a K8s cluster, especially in testing and development environments.
+Kubeadm automates the process of setting up the control plane and worker nodes of a K8s cluster,
+allowing users to quickly and easily create a cluster without needing to know all the details of K8s architecture and deployment.
+
+
+To use Kubeadm to set up a multi-node Kubernetes cluster, you can follow these steps:
+
+1.Set up a control plane node: Use Kubeadm to initialize the first node as the control plane. You can run the following command on the first node:
+
+sudo kubeadm init --pod-network-cidr=<desired-pod-network-cidr>
+
+The --pod-network-cidr flag specifies the CIDR block for the pod network, which is used to assign IP addresses to pods.
+This command will initialize the control plane and generate a command to join worker nodes to the cluster.
+
+CIDR stands for Classless Inter-Domain Routing. It is a method of assigning IP addresses and routing Internet Protocol (IP) packets.
+CIDR notation is a compact way of representing an IP address and its associated network mask.
+
+A CIDR block is a range of IP addresses that share a common prefix. 
+For example, the CIDR block 192.168.0.0/16 represents all IP addresses from 192.168.0.0 to 192.168.255.255.
+CIDR blocks are commonly used in networking, especially for assigning IP addresses to devices on a network. 
+They are also used in Kubernetes for assigning IP addresses to pods. 
+When a pod is created, it is assigned an IP address from the CIDR block specified in the cluster configuration.
+
+CIDR blocks can also be used to define network policies, such as allowing or denying traffic between pods based on their IP addresses.
+By defining a CIDR block, you can control which IP addresses are allowed to communicate with each other within the network.
+
+
+
+ 
+2.Join worker nodes: On each worker node, run the command generated in the previous step to join it to the cluster. For example:
+
+sudo kubeadm join <control-plane-node-ip>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>
+
+This command will authenticate the worker node with the control plane and add it to the cluster.
+
+
+3.Configure networking: Install a networking plugin to provide networking functionality to the cluster. For example, you can use Flannel by running:
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+
+4.This will install Flannel and configure the necessary network policies for your cluster.
+
+Verify cluster status: Once you have set up the control plane and worker nodes, you can use kubectl to verify the cluster status. For example, you can run:
+
+kubectl get nodes
+This will show you the status of all the nodes in the cluster.
+
+That's it! You now have a multi-node Kubernetes cluster set up using Kubeadm. You can deploy workloads and manage the cluster using kubectl.
+
