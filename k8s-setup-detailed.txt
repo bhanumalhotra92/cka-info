@@ -1,0 +1,327 @@
+Setting Up k8s Cluster
+
+
+
+1.Set hostnames of control panel and worker nodes
+
+sudo hostnamectl set-hostname k8s-control
+
+
+2. Add host names to all the 3 servers
+
+
+sudo vi /etc/hosts #edit this file
+
+ip (private to be used as public changes if server restarted)    k8s-control
+ip                                                               k8s-worker1
+ip                                                               k8s-worker2
+
+
+Relogin to all servers, now you can see hostnames being reflected.
+
+3. Do these step on all 3 servers
+Info to understand this step:
+
+modprobe is a command in Linux and Unix operating systems that is used to add a kernel module to the operating system kernel.
+
+Kernel modules are pieces of code that can be dynamically loaded and unloaded into the kernel at runtime. 
+They can provide additional functionality to the kernel or support for specific hardware or software features.
+
+The modprobe command searches for the specified module in the system's list of available kernel modules, and loads it into the kernel if it is not already loaded.
+It can also load any dependent modules that are required by the specified module.
+
+Here are some common uses of the modprobe command:
+
+Loading a kernel module: modprobe <module-name>
+Unloading a kernel module: modprobe -r <module-name>
+Listing currently loaded modules: lsmod
+Adding kernel module options: modprobe <module-name> <option1>=<value1> <option2>=<value2>
+Note that the modprobe command typically requires root or superuser privileges to run.
+
+
+
+
+In Linux operating systems, tee is a command that reads input from standard input (stdin) and
+writes it to both standard output (stdout) and one or more specified files.
+The command is named after the "T" junction in plumbing, which splits a pipe into two.
+
+The syntax of the tee command is:
+
+
+tee [OPTION]... [FILE]...
+Here are some common uses of the tee command:
+
+Saving output to a file: command | tee output.txt
+This command runs the command and saves its output to both stdout and the output.txt file.
+Appending output to a file: command | tee -a output.txt
+This command appends the output of the command to the end of the output.txt file.
+Saving input to a file: tee input.txt
+This command reads input from stdin and saves it to both stdout and the input.txt file.
+Overwriting multiple files: command | tee file1.txt file2.txt
+This command runs the command and writes its output to both stdout, file1.txt, and file2.txt.
+The tee command also has several options that can modify its behavior, 
+such as -a to append to a file instead of overwriting it, -i to ignore interrupt signals, and -p to output to stdout immediately instead of buffering the output.
+
+Note that the tee command is often used in conjunction with other Unix commands and shell pipelines to redirect or duplicate output.
+
+
+
+
+
+Step:1
+
+cat << EOF | sudo tee /etc/modules-load.d/containerd.conf
+> overlay
+> br_netfilter
+> EOF
+Overlay and br_netfilter are two different concepts related to networking in Linux.
+
+
+Overlay networking refers to the creation of virtual networks that are overlaid on top of physical networks. 
+This allows for more flexible and dynamic network topologies, as virtual networks can be created, moved, and scaled independently of physical infrastructure.
+Overlay networks are often used in containerized environments, where they allow containers to communicate with each other even if they are running on different hosts.
+
+Br_netfilter, on the other hand, is a Linux kernel module that provides bridge-specific packet filtering capabilities. 
+Bridges are devices that allow multiple network segments to be connected together, and br_netfilter provides the ability to filter traffic that passes through the bridge.
+This can be useful for enforcing security policies or limiting network traffic.
+
+Both overlay networking and br_netfilter are important tools for managing and securing network traffic in Linux environments. 
+However, they serve different purposes and are used in different contexts. 
+Overlay networking is typically used in cloud and containerized environments, while br_netfilter is more commonly used in traditional network infrastructure.
+
+This command is used to create a file named /etc/modules-load.d/containerd.conf and write the text overlay and br_netfilter to the file.
+The sudo command is used to run the tee command with superuser privileges, which allows it to write to the protected /etc/modules-load.d directory.
+
+Here's what each part of the command does:
+
+cat << EOF starts a here document and redirects its contents to the standard input of the next command (tee in this case).
+overlay and br_netfilter are the two lines of text that are written to the file.
+The > symbol is used to redirect the output of each line to the standard input of the here document.
+
+EOF is the end-of-file marker that signals the end of the here document.
+When the shell sees EOF, it stops reading input and sends the contents of the here document to the next command (tee).
+
+sudo tee /etc/modules-load.d/containerd.conf is the command that writes the contents of the here document to the /etc/modules-load.d/containerd.conf file. 
+The tee command reads its input from the standard input and writes it to both the standard output (which is displayed on the screen) and the specified file (/etc/modules-load.d/containerd.conf).
+
+Overall, this command is used to create a new file and add the specified lines of text to it using a single command,
+which is useful for automating the setup of a Kubernetes cluster or other system configuration tasks.
+
+
+Step2: 
+sudo modprobe overlay 
+sudo modeprobe br_netfilter
+
+
+
+Step3:
+
+cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+>net.bridge.bridge-nf-call-iptables  = 1
+>net.ipv4.ip_forward                 = 1
+>net.bridge.bridge-nf-call-ip6tables = 1
+>EOF
+
+
+Overall, this command is used to configure network parameters for Kubernetes and the CRI (Container Runtime Interface) by creating a file 
+and adding the specified lines of text to it using a single command.
+
+
+
+Step4: sudo sysctl --system     
+
+By running this command, any changes made to the system's kernel parameters in the /etc/sysctl.d/ directory will take effect immediately
+without requiring a system reboot. This is useful for making changes to system settings without interrupting running services or applications.
+
+
+Step5: sudo apt-get update && sudo apt-get install -y containerd 
+
+Step6: sudo mkdir -p /etc/containerd
+
+Step7: sudo containerd config | /etc/containerd/config.toml
+
+Overall, this command is used to generate and save a default configuration file for containerd in the appropriate location with superuser privileges.
+This configuration file can be customized to modify the behavior of containerd and fine-tune its performance. 
+The output of the command is also displayed to the console, allowing the user to review the configuration data.
+
+
+Step8: sudo systemctl restart containerd
+The sudo swapoff -a command is used to disable all swap space on the system.
+
+Swap space is a portion of a hard disk used for virtual memory when the system runs out of physical RAM. 
+Kubernetes requires that swap space be disabled on all nodes in the cluster to ensure consistent and reliable performance.
+
+Here's how this command works:
+
+sudo runs the following command with superuser privileges, which is required to modify system-level settings.
+swapoff is a command that disables swap space on the system.
+-a is an option that tells swapoff to disable all swap spaces that are currently in use.
+
+Overall, this command is typically used as part of the setup process for a Kubernetes cluster to ensure that swap space is disabled on all nodes in the cluster.
+Disabling swap space can help prevent performance issues and unexpected behavior due to memory constraints.
+
+
+
+Step8: sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+
+The sudo apt-get install -y apt-transport-https curl command is used to install two packages: apt-transport-https and curl.
+
+apt-transport-https provides support for downloading packages over HTTPS.
+
+curl is a tool for transferring data from or to a server, using one of the supported protocols including HTTP, HTTPS, FTP, FTPS, SCP, SFTP, TFTP, DICT, TELNET, LDAP or FILE.
+
+
+
+
+Step 9  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+
+
+sudo apt-key add - is a command that adds the downloaded key to the system's list of trusted keys. 
+The - option tells the apt-key command to read the key from standard input.
+
+
+The Google Cloud apt-key is a public key used to verify the authenticity of packages downloaded from the Google Cloud package repository.
+The apt-key is used by the apt-get package manager to authenticate packages during installation.
+
+When packages are uploaded to the Google Cloud package repository, they are signed with a private key to ensure their authenticity. 
+The apt-key is the corresponding public key that can be used to verify the package signature and ensure that it was not tampered with during download or transmission.
+
+By adding the Google Cloud apt-key to the system's trusted keyring, apt-get can verify the package signatures and
+ensure that only authentic packages are installed on the system. 
+This provides an additional layer of security and helps prevent malicious packages from being installed on the system.
+
+
+
+Step9: 
+
+cat << EOF | sudo /etc/apt/sources.list.d/kubernetes.list
+>deb https://apt.kubernetes.io/ kubernetes-xenial main
+>EOF
+
+
+
+Overall, this command is used to add the Kubernetes package repository to the system's apt sources list by creating a new file named kubernetes.
+list in the /etc/apt/sources.list.d directory and adding the repository's URL and distribution information to it.
+
+
+
+Kubernetes is an open-source container orchestration system that allows developers to automate the deployment, scaling, 
+and management of containerized applications. To simplify the management of Kubernetes deployments,
+several package repositories are available to help users easily deploy and manage Kubernetes applications.
+
+Some popular Kubernetes package repositories include:
+
+Helm: Helm is a popular package manager for Kubernetes that allows users to define, install, and upgrade Kubernetes applications using charts,
+which are packages that contain all the necessary Kubernetes resources to run an application.
+
+Kubeapps: Kubeapps is a web-based Kubernetes application marketplace that allows users to discover, install, and manage applications on Kubernetes clusters.
+
+OperatorHub: OperatorHub is a community-driven package repository for Kubernetes operators, which are Kubernetes-native applications
+that can be used to automate complex tasks, such as managing databases or deploying applications.
+
+Kompose: Kompose is a tool that allows users to convert Docker Compose files to Kubernetes YAML files, making it easier to deploy Docker Compose applications on Kubernetes.
+
+ChartCenter: ChartCenter is a free and open-source public chart repository that provides a curated collection of Helm charts for popular applications.
+
+There are also other package repositories available that offer similar functionality.
+Users can choose the package repository that best meets their needs based on the types of applications they plan to deploy and manage on their Kubernetes cluster.
+
+
+Step 10:       sudo apt-get update
+
+ 
+Step 11:     sudo apt-get install -y kubelet=1.24.0-00 kubeadm=1.24.0-00 kubectl=1.24.0-00 
+
+
+Step 12:
+
+sudo apt-mark hold kubelet kubeadm kubectl
+
+When a package is marked as "held back," it means that it will not be automatically upgraded or installed during system updates. 
+This is useful when you want to prevent accidental upgrades or modifications to critical system components.
+
+In the context of Kubernetes, marking the kubelet, kubeadm, and kubectl packages as "held back" can help prevent unintended upgrades
+that may cause compatibility issues or disrupt your Kubernetes cluster.
+It's a recommended practice to use this command before upgrading or modifying your Kubernetes installation to ensure that you have a stable and consistent environment.
+
+
+
+
+Step 13:
+
+"sudo kubeadm init --pod-network-cidr 192.168.0/16 --kubernetes-version 1.24.0" is used to initialize a new Kubernetes cluster on a Linux system using the kubeadm tool.
+
+command1
+mkdir -p $HOME/.kube
+
+By creating this directory, you are preparing your system to store the Kubernetes configuration file, which is used by kubectl, the Kubernetes command-line tool, 
+to interact with your Kubernetes cluster. After creating the directory, you can copy your Kubernetes configuration file into it. 
+This configuration file typically contains information about the API server, authentication credentials, 
+and other cluster configuration details that kubectl needs to connect to and interact with your cluster.
+
+command2
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+ is used to copy the Kubernetes configuration file from the default location "/etc/kubernetes/admin.conf" to the user's home directory under the ".kube" subdirectory. 
+
+This command is useful for setting up the Kubernetes configuration file, which is required by kubectl to communicate with the Kubernetes API server.
+Once this command is executed, kubectl can be used to interact with the Kubernetes cluster using the configuration file stored in the user's home directory.
+
+command3
+
+sudo chown $(id -u) $(id -g) $HOME/.kube/config"
+
+ is used to change the ownership of the Kubernetes configuration file to the current user. 
+
+"$(id -u)": a command substitution that gets the user ID of the current user.
+
+"$(id -g)": a command substitution that gets the group ID of the current user.
+the purpose of this command is to ensure that the Kubernetes configuration file is owned by the user who will be using it, 
+rather than being owned by the root user. This is important because kubectl will be looking for the configuration file in the user's home directory,
+and may fail if the file is owned by another user. By changing the ownership of the file to the current user, you can avoid potential issues with kubectl 
+and ensure that you have the necessary permissions to interact with the Kubernetes cluster.
+
+
+Step 14:
+
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+
+ the URL of the YAML configuration file that describes the Calico networking plugin.
+ This file contains information about the Calico components that will be deployed to the cluster, including the Calico node, 
+ the Calico CNI plugin, and the Calico policy controller.
+
+By running this command, you are instructing kubectl to download the Calico configuration file from the specified URL, 
+and then deploy the Calico components to the Kubernetes cluster.
+Once the components have been deployed, the Calico networking plugin will be available for use by the pods in your cluster.
+Calico provides advanced networking and security features, including IP address management, network policy enforcement, 
+and distributed firewalling, which can help you to secure and manage your Kubernetes workloads.
+
+CNI stands for Container Networking Interface. It is a standard interface between the container runtime and
+the networking plugin that provides networking capabilities to the containerized workloads running in a Kubernetes cluster.
+
+CNI plugins are responsible for creating and managing network interfaces for containers, assigning IP addresses, and configuring routing and network policies.
+They typically work with the underlying network infrastructure, such as virtual or physical network devices, 
+to provide connectivity between containers and with external networks.
+
+
+
+
+Step 15:
+kubeadm token create --print-join-command
+
+When you run this command, kubeadm will generate a new bootstrap token and print the command that can be used to join a new node to the cluster using this token. 
+The join command includes the IP address and port of the Kubernetes API server,
+as well as the bootstrap token and other configuration information that is needed to join the new node to the cluster.
+
+You can copy this join command and use it on the new node that you want to join to the cluster.
+By running this command on the new node, you can initiate the process of joining the node to the cluster, 
+and the new node will be added to the cluster as a worker node.
+
+Step 16:
+
+Copy the command on both nodes
+
+
+
+	You got your k8s setup !!!!
