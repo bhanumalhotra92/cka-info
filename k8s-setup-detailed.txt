@@ -26,17 +26,13 @@ Turn off automatic updates.
 
 
 
-
-Setting Up k8s Cluster
-
-
-
-1.Set hostnames of control panel and worker nodes
+Set hostnames of control panel and worker nodes
 
 sudo hostnamectl set-hostname k8s-control
+sudo hostnamectl set-hostname k8s-worker1
+sudo hostnamectl set-hostname k8s-worker2
 
-
-2. Add host names to all the 3 servers
+Add host names to all the nodes and control panel
 
 
 sudo vi /etc/hosts #edit this file
