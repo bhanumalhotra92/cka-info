@@ -1,3 +1,32 @@
+Log in to the control plane node.
+Create configuration file for containerd.
+Load modules.
+Set system configurations for Kubernetes networking.
+Apply new settings.
+Install containerd.
+Create default configuration file for containerd.
+Generate default containerd configuration and save to the newly created default file.
+Restart containerd to ensure new configuration file usage.
+Verify that containerd is running.
+Disable swap.
+Install dependency packages.
+Download and add GPG key.
+Add Kubernetes to repository list.
+Update package listings.
+Install Kubernetes packages.
+Turn off automatic updates.
+
+
+
+
+
+
+
+
+
+
+
+
 Setting Up k8s Cluster
 
 
@@ -19,9 +48,24 @@ ip                                                               k8s-worker2
 
 Relogin to all servers, now you can see hostnames being reflected.
 
-3. Do these step on all 3 servers
-Info to understand this step:
 
+
+
+
+
+
+
+1.Log in to the control plane node.
+
+2.Create configuration file for containerd.
+
+cat << EOF | sudo tee /etc/modules-load.d/containerd.conf
+> overlay
+> br_netfilter
+> EOF
+
+
+Info:
 modprobe is a command in Linux and Unix operating systems that is used to add a kernel module to the operating system kernel.
 
 Kernel modules are pieces of code that can be dynamically loaded and unloaded into the kernel at runtime. 
@@ -30,50 +74,10 @@ They can provide additional functionality to the kernel or support for specific 
 The modprobe command searches for the specified module in the system's list of available kernel modules, and loads it into the kernel if it is not already loaded.
 It can also load any dependent modules that are required by the specified module.
 
-Here are some common uses of the modprobe command:
-
-Loading a kernel module: modprobe <module-name>
-Unloading a kernel module: modprobe -r <module-name>
-Listing currently loaded modules: lsmod
-Adding kernel module options: modprobe <module-name> <option1>=<value1> <option2>=<value2>
-Note that the modprobe command typically requires root or superuser privileges to run.
-
-
-
-
 In Linux operating systems, tee is a command that reads input from standard input (stdin) and
 writes it to both standard output (stdout) and one or more specified files.
 The command is named after the "T" junction in plumbing, which splits a pipe into two.
 
-The syntax of the tee command is:
-
-
-tee [OPTION]... [FILE]...
-Here are some common uses of the tee command:
-
-Saving output to a file: command | tee output.txt
-This command runs the command and saves its output to both stdout and the output.txt file.
-Appending output to a file: command | tee -a output.txt
-This command appends the output of the command to the end of the output.txt file.
-Saving input to a file: tee input.txt
-This command reads input from stdin and saves it to both stdout and the input.txt file.
-Overwriting multiple files: command | tee file1.txt file2.txt
-This command runs the command and writes its output to both stdout, file1.txt, and file2.txt.
-The tee command also has several options that can modify its behavior, 
-such as -a to append to a file instead of overwriting it, -i to ignore interrupt signals, and -p to output to stdout immediately instead of buffering the output.
-
-Note that the tee command is often used in conjunction with other Unix commands and shell pipelines to redirect or duplicate output.
-
-
-
-
-
-Step:1
-
-cat << EOF | sudo tee /etc/modules-load.d/containerd.conf
-> overlay
-> br_netfilter
-> EOF
 Overlay and br_netfilter are two different concepts related to networking in Linux.
 
 
@@ -89,32 +93,17 @@ Both overlay networking and br_netfilter are important tools for managing and se
 However, they serve different purposes and are used in different contexts. 
 Overlay networking is typically used in cloud and containerized environments, while br_netfilter is more commonly used in traditional network infrastructure.
 
-This command is used to create a file named /etc/modules-load.d/containerd.conf and write the text overlay and br_netfilter to the file.
-The sudo command is used to run the tee command with superuser privileges, which allows it to write to the protected /etc/modules-load.d directory.
-
-Here's what each part of the command does:
-
-cat << EOF starts a here document and redirects its contents to the standard input of the next command (tee in this case).
-overlay and br_netfilter are the two lines of text that are written to the file.
-The > symbol is used to redirect the output of each line to the standard input of the here document.
-
-EOF is the end-of-file marker that signals the end of the here document.
-When the shell sees EOF, it stops reading input and sends the contents of the here document to the next command (tee).
-
-sudo tee /etc/modules-load.d/containerd.conf is the command that writes the contents of the here document to the /etc/modules-load.d/containerd.conf file. 
-The tee command reads its input from the standard input and writes it to both the standard output (which is displayed on the screen) and the specified file (/etc/modules-load.d/containerd.conf).
-
-Overall, this command is used to create a new file and add the specified lines of text to it using a single command,
-which is useful for automating the setup of a Kubernetes cluster or other system configuration tasks.
 
 
-Step2: 
+
+3.Load modules.
+
 sudo modprobe overlay 
 sudo modeprobe br_netfilter
 
 
+4.Set system configurations for Kubernetes networking.
 
-Step3:
 
 cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
 >net.bridge.bridge-nf-call-iptables  = 1
@@ -122,30 +111,67 @@ cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
 >net.bridge.bridge-nf-call-ip6tables = 1
 >EOF
 
+//net.bridge.bridge-nf-call-iptables = 1 is a kernel parameter setting in Linux systems that enables the iptables firewall to filter bridged network traffic. This parameter is typically used in virtualization environments where multiple virtual machines are connected to the same physical network interface via a bridge.
 
-Overall, this command is used to configure network parameters for Kubernetes and the CRI (Container Runtime Interface) by creating a file 
-and adding the specified lines of text to it using a single command.
+When set to 1, this parameter enables the kernel to pass bridged network traffic to iptables, which can then filter the traffic according to predefined rules. This helps to enhance the security of the virtual network by allowing administrators to restrict traffic between virtual machines or between virtual machines and the host system.
+
+It's important to note that changing kernel parameters can have unintended consequences and should be done with caution. Also, this parameter may not be relevant or necessary in all environments, so it's important to understand your specific network configuration and security requirements before enabling it.//
+
+//net.ipv4.ip_forward is a kernel parameter in Linux systems that enables or disables IP forwarding between network interfaces. When this parameter is set to 0, IP forwarding is disabled, and the system will only route packets between its own interfaces. When it is set to 1, IP forwarding is enabled, and the system will route packets between its own interfaces as well as between different networks.
+
+This parameter is often used in network gateway devices or routers, where packets need to be forwarded between different networks. By default, IP forwarding is disabled in most Linux distributions to prevent accidental routing of packets and potential security risks.
+
+It's important to note that enabling IP forwarding can introduce potential security risks, as it allows packets to be routed between different networks, potentially exposing sensitive data to unauthorized access. Therefore, it's important to carefully consider the security implications before enabling this parameter, and ensure that appropriate security measures are in place to protect the network.//
+
+//net.bridge.bridge-nf-call-ip6tables = 1 is a kernel parameter setting in Linux systems that enables the ip6tables firewall to filter IPv6 bridged network traffic. This parameter is similar to the net.bridge.bridge-nf-call-iptables = 1 parameter used for IPv4 traffic, but is specific to IPv6 traffic.
+
+When set to 1, this parameter enables the kernel to pass IPv6 bridged network traffic to ip6tables, which can then filter the traffic according to predefined rules. This helps to enhance the security of the virtual network by allowing administrators to restrict traffic between virtual machines or between virtual machines and the host system.
+
+Just like with the net.bridge.bridge-nf-call-iptables = 1 parameter, changing this kernel parameter can have unintended consequences and should be done with caution. Additionally, not all systems may require this parameter, so it's important to understand your specific network configuration and security requirements before enabling it.//
 
 
 
-Step4: sudo sysctl --system     
+
+
+5.Apply new settings.
+
+sudo sysctl --system     
 
 By running this command, any changes made to the system's kernel parameters in the /etc/sysctl.d/ directory will take effect immediately
 without requiring a system reboot. This is useful for making changes to system settings without interrupting running services or applications.
 
 
-Step5: sudo apt-get update && sudo apt-get install -y containerd 
 
-Step6: sudo mkdir -p /etc/containerd
 
-Step7: sudo containerd config | /etc/containerd/config.toml
+6.Install containerd.
+
+sudo apt-get update && sudo apt-get install -y containerd 
+
+
+7.Create default configuration file for containerd.
+
+sudo mkdir -p /etc/containerd
+
+
+8.Generate default containerd configuration and save to the newly created default file.
+
+sudo containerd config | /etc/containerd/config.toml
 
 Overall, this command is used to generate and save a default configuration file for containerd in the appropriate location with superuser privileges.
 This configuration file can be customized to modify the behavior of containerd and fine-tune its performance. 
 The output of the command is also displayed to the console, allowing the user to review the configuration data.
 
 
-Step8: sudo systemctl restart containerd
+9.Restart containerd to ensure new configuration file usage.
+
+sudo systemctl restart containerd
+
+10.Verify that containerd is running.
+
+sudo systemctl status containerd
+
+11.Disable swap.
+
 The sudo swapoff -a command is used to disable all swap space on the system.
 
 Swap space is a portion of a hard disk used for virtual memory when the system runs out of physical RAM. 
@@ -160,25 +186,21 @@ swapoff is a command that disables swap space on the system.
 Overall, this command is typically used as part of the setup process for a Kubernetes cluster to ensure that swap space is disabled on all nodes in the cluster.
 Disabling swap space can help prevent performance issues and unexpected behavior due to memory constraints.
 
+12.Install dependency packages.
 
-
-Step8: sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
 
 The sudo apt-get install -y apt-transport-https curl command is used to install two packages: apt-transport-https and curl.
-
-apt-transport-https provides support for downloading packages over HTTPS.
-
 curl is a tool for transferring data from or to a server, using one of the supported protocols including HTTP, HTTPS, FTP, FTPS, SCP, SFTP, TFTP, DICT, TELNET, LDAP or FILE.
 
 
+13.Download and add GPG key.
 
-
-Step 9  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-
-
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add 
 
 sudo apt-key add - is a command that adds the downloaded key to the system's list of trusted keys. 
 The - option tells the apt-key command to read the key from standard input.
+
 
 
 The Google Cloud apt-key is a public key used to verify the authenticity of packages downloaded from the Google Cloud package repository.
@@ -192,8 +214,7 @@ ensure that only authentic packages are installed on the system.
 This provides an additional layer of security and helps prevent malicious packages from being installed on the system.
 
 
-
-Step9: 
+14.Add Kubernetes to repository list.
 
 cat << EOF | sudo /etc/apt/sources.list.d/kubernetes.list
 >deb https://apt.kubernetes.io/ kubernetes-xenial main
@@ -227,14 +248,15 @@ ChartCenter: ChartCenter is a free and open-source public chart repository that 
 There are also other package repositories available that offer similar functionality.
 Users can choose the package repository that best meets their needs based on the types of applications they plan to deploy and manage on their Kubernetes cluster.
 
+15.Update package listings.
 
-Step 10:       sudo apt-get update
+sudo apt-get update
 
- 
-Step 11:     sudo apt-get install -y kubelet=1.24.0-00 kubeadm=1.24.0-00 kubectl=1.24.0-00 
+16.Install Kubernetes packages.
 
+ sudo apt-get install -y kubelet=1.24.0-00 kubeadm=1.24.0-00 kubectl=1.24.0-00 
 
-Step 12:
+17.Turn off automatic updates.
 
 sudo apt-mark hold kubelet kubeadm kubectl
 
@@ -247,8 +269,13 @@ It's a recommended practice to use this command before upgrading or modifying yo
 
 
 
+----Initialize the Cluster---------
 
-Step 13:
+On the control plane node, initialize the Kubernetes cluster on the control plane node using kubeadm:
+Set kubectl access
+Test access to cluster.
+
+
 
 "sudo kubeadm init --pod-network-cidr 192.168.0/16 --kubernetes-version 1.24.0" is used to initialize a new Kubernetes cluster on a Linux system using the kubeadm tool.
 
@@ -283,7 +310,14 @@ and may fail if the file is owned by another user. By changing the ownership of 
 and ensure that you have the necessary permissions to interact with the Kubernetes cluster.
 
 
-Step 14:
+
+----------Install the Calico Network Add-On------------
+
+On the control plane node, install Calico Networking:
+Check status of the control plane node.
+
+
+
 
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 
@@ -307,7 +341,15 @@ to provide connectivity between containers and with external networks.
 
 
 
-Step 15:
+---------Join the Worker Nodes to the Cluster--------------
+
+In the control plane node, create the token and copy the kubeadm join command:
+Copy the full output from the previous command used in the control plane node. This command starts with kubeadm join.
+In both worker nodes, paste the full kubeadm join command to join the cluster. Use sudo to run it as root
+In the control plane node, view cluster status.
+
+
+
 kubeadm token create --print-join-command
 
 When you run this command, kubeadm will generate a new bootstrap token and print the command that can be used to join a new node to the cluster using this token. 
