@@ -1,0 +1,18 @@
+kubectl label nodes acgk8s-worker2 disk=fast
+
+
+vi pod-nodeselector.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fast-nginx
+  namespace: dev
+spec:
+  nodeSelector:
+    disk: fast
+  containers:
+  - name: nginx
+    image: nginx
+    
+    
